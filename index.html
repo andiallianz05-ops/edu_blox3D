@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBlox 3D - Quiz Obby Ala Roblox</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js untuk Arena & Karakter 3D Ala Roblox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-game {
+            font-family: 'Fredoka', sans-serif;
+        }
+        #three-canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 1.5rem;
+        }
+        /* Gaya Tombol 3D Ala Roblox */
+        .blox-btn {
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+            transition: all 0.1s ease;
+        }
+        .blox-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100">
+
+    <!-- ==================== HEADER / NAVBAR ALA ROBLOX ==================== -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl flex items-center justify-center text-slate-950 font-game font-bold text-xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold tracking-wide text-white leading-tight font-game">
+                            EduBlox 3D
+                        </h1>
+                        <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded text-[10px] font-bold uppercase">
+                            Quiz Obby
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium" id="header-subject-badge">Materi: Pengetahuan Umum</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="toggleSound()" id="btn-sound" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Efek Suara">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <button onclick="exitToMenu()" id="btn-home" class="hidden px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm transition flex items-center gap-2 blox-btn">
+                    <i class="fa-solid fa-door-open"></i> <span class="hidden sm:inline">Keluar Room</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTAINER ==================== -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-5">
+
+        <!-- 1. LAYAR MENU UTAMA (LOBI ROBLOX) -->
+        <section id="screen-menu" class="w-full max-w-5xl bg-slate-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
+            <div class="grid md:grid-cols-12">
+                <!-- Banner Kiri -->
+                <div class="md:col-span-5 bg-gradient-to-br from-emerald-600 via-teal-700 to-indigo-800 p-7 text-white flex flex-col justify-between relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="inline-block px-3 py-1 bg-black/25 backdrop-blur-sm rounded-full text-xs font-bold tracking-wider uppercase mb-4">
+                            🎮 Minigame Edukasi 3D
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl font-bold mb-3 leading-tight font-game">Lantai Runtuh Quiz Obby!</h2>
+                        <p class="text-emerald-100 text-sm leading-relaxed mb-5">
+                            Konsep multiplayer ala <strong>Roblox</strong>! Hingga <strong>20 pemain individu</strong> berdiri di atas 4 ubin warna (A, B, C, D). Ubin yang jawabannya salah akan runtuh ke lava!
+                        </p>
+                    </div>
+
+                    <!-- Mini Preview Ubin 3D -->
+                    <div class="relative z-10 my-3 bg-black/25 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+                        <p class="text-xs font-bold text-emerald-200 uppercase mb-2.5 text-center">4 Zona Jawaban di Atas Lava</p>
+                        <div class="grid grid-cols-2 gap-2 text-center font-game text-sm">
+                            <div class="bg-rose-500 py-2 rounded-xl shadow">🟥 Ubin A</div>
+                            <div class="bg-blue-500 py-2 rounded-xl shadow">🟦 Ubin B</div>
+                            <div class="bg-amber-400 text-slate-900 py-2 rounded-xl shadow">🟨 Ubin C</div>
+                            <div class="bg-emerald-500 py-2 rounded-xl shadow">🟩 Ubin D</div>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 text-xs text-emerald-100 space-y-1 mt-3">
+                        <div><i class="fa-solid fa-check-circle mr-1.5"></i> Maksimal 20 Pemain Tanpa Tim</div>
+                        <div><i class="fa-solid fa-check-circle mr-1.5"></i> Sistem Kode Undangan Room</div>
+                        <div><i class="fa-solid fa-check-circle mr-1.5"></i> Soal Khusus Pembuat Room (Host)</div>
+                    </div>
+                </div>
+
+                <!-- Panel Kanan: Buat Room (Host) vs Gabung Kode Undangan -->
+                <div class="md:col-span-7 p-6 sm:p-8 flex flex-col justify-between bg-slate-800">
+                    <div>
+                        <!-- Tab Peran -->
+                        <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-900 rounded-2xl mb-5 border border-slate-700">
+                            <button id="tab-host" onclick="switchRoleTab('host')" class="py-2.5 px-4 rounded-xl font-bold text-sm bg-emerald-500 text-slate-950 shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-crown"></i> Buat Room (Host)
+                            </button>
+                            <button id="tab-join" onclick="switchRoleTab('join')" class="py-2.5 px-4 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-key"></i> Gabung Kode Room
+                            </button>
+                        </div>
+
+                        <!-- PANEL A: PEMBUAT ROOM (HOST) -->
+                        <div id="panel-role-host" class="space-y-4">
+                            <div class="bg-slate-900/80 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <div>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block">Kode Undangan Server Room</span>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span id="host-room-code" class="font-game text-2xl font-bold tracking-widest text-white">BLX-842</span>
+                                        <button onclick="copyRoomCode()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-600 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                                            <i class="fa-regular fa-copy"></i> Salin
+                                        </button>
+                                        <button onclick="regenerateRoomCode()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-600 rounded-lg text-xs transition" title="Acak Kode Baru">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/30 font-medium">
+                                    <i class="fa-solid fa-lock mr-1"></i> Soal hanya terlihat oleh Anda (Host)
+                                </span>
+                            </div>
+
+                            <!-- Materi Pembelajaran -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Materi Pembelajaran (Khusus Host)</label>
+                                    <span id="question-count-label" class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">8 Soal Siap</span>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <select id="select-preset" onchange="loadPresetSubject()" class="flex-grow px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-white text-sm">
+                                        <option value="umum">🌍 Pengetahuan Umum</option>
+                                        <option value="matematika">📐 Matematika Dasar</option>
+                                        <option value="ipa">🔬 Ilmu Pengetahuan Alam (IPA)</option>
+                                        <option value="inggris">🇬🇧 Bahasa Inggris</option>
+                                        <option value="custom">✏️ Materi Kustom (Buatan Sendiri)</option>
+                                    </select>
+                                    <button onclick="openEditor()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 whitespace-nowrap blox-btn">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit / Lihat Soal
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Daftar Avatar Pemain di Lobi (Maksimal 20 Pemain) -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                        Avatar di Server (<span id="player-count-badge">6</span>/20 Pemain)
+                                    </label>
+                                    <button onclick="addPlayerSlot()" id="btn-add-player" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1 rounded-lg border border-emerald-500/30 transition flex items-center gap-1">
+                                        <i class="fa-solid fa-user-plus"></i> Tambah Avatar
+                                    </button>
+                                </div>
+                                
+                                <div id="players-setup-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-44 overflow-y-auto pr-1">
+                                    <!-- Slot avatar di-render via JS -->
+                                </div>
+                            </div>
+
+                            <button onclick="startGame()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-game text-lg font-bold rounded-2xl shadow-lg shadow-emerald-500/25 blox-btn flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> MULAI SERVER GAME 3D
+                            </button>
+                        </div>
+
+                        <!-- PANEL B: GABUNG DENGAN KODE UNDANGAN (PESERTA) -->
+                        <div id="panel-role-join" class="hidden space-y-5">
+                            <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-xs text-amber-200 flex items-start gap-3">
+                                <i class="fa-solid fa-shield-halved text-amber-400 text-base mt-0.5"></i>
+                                <div>
+                                    <p class="font-bold text-amber-300 mb-0.5">Akses Peserta Undangan</p>
+                                    <p>Masukkan <strong>Kode Undangan</strong> dari Pembuat Room untuk memunculkan avatar 3D Anda di arena. Soal permainan disembunyikan dari layar peserta dan hanya bisa dilihat oleh Pembuat Room.</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Kode Undangan Room</label>
+                                    <input type="text" id="join-code-input" placeholder="Contoh: BLX-842" maxlength="10"
+                                        class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-game text-lg uppercase tracking-widest text-white">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nickname Avatar Anda</label>
+                                    <input type="text" id="join-name-input" placeholder="Masukkan nickname Roblox kamu..." maxlength="14"
+                                        class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold text-white text-sm">
+                                </div>
+                            </div>
+
+                            <button onclick="joinRoomWithCode()" class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-game text-lg font-bold rounded-2xl shadow-lg shadow-blue-500/25 blox-btn flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-right-to-bracket"></i> GABUNG KE ARENA 3D
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. LAYAR EDITOR SOAL (KHUSUS PEMBUAT ROOM / HOST) -->
+        <section id="screen-editor" class="hidden w-full max-w-4xl bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-slate-700 mb-6">
+                <div>
+                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs font-bold uppercase">
+                        <i class="fa-solid fa-crown mr-1"></i> Khusus Pembuat Room (Host)
+                    </span>
+                    <h2 class="text-2xl font-bold text-white mt-2 font-game">Editor Materi & Soal Kuis</h2>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="showScreen('menu')" class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-sm rounded-xl transition">
+                        Batal
+                    </button>
+                    <button onclick="saveCustomQuestions()" class="flex-1 sm:flex-none px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 blox-btn">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Materi
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Judul Topik Pelajaran</label>
+                <input type="text" id="editor-subject-title" placeholder="Contoh: Sejarah Nusantara"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold text-white text-sm">
+            </div>
+
+            <!-- Form Tambah Soal -->
+            <div class="bg-slate-900/80 border border-slate-700 rounded-2xl p-5 mb-6">
+                <h3 class="font-bold text-emerald-400 text-sm mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus"></i> Tambah Pertanyaan Baru
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" id="new-q-text" placeholder="Tulis pertanyaan di sini..."
+                        class="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-xl border border-rose-500/40">
+                            <input type="radio" name="correct-opt" value="0" checked class="w-4 h-4 accent-emerald-500">
+                            <span class="font-bold text-xs text-rose-400">🟥 A.</span>
+                            <input type="text" id="new-opt-0" placeholder="Jawaban Ubin Merah (A)" class="w-full text-sm bg-transparent text-white focus:outline-none">
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-xl border border-blue-500/40">
+                            <input type="radio" name="correct-opt" value="1" class="w-4 h-4 accent-emerald-500">
+                            <span class="font-bold text-xs text-blue-400">🟦 B.</span>
+                            <input type="text" id="new-opt-1" placeholder="Jawaban Ubin Biru (B)" class="w-full text-sm bg-transparent text-white focus:outline-none">
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-xl border border-amber-500/40">
+                            <input type="radio" name="correct-opt" value="2" class="w-4 h-4 accent-emerald-500">
+                            <span class="font-bold text-xs text-amber-400">🟨 C.</span>
+                            <input type="text" id="new-opt-2" placeholder="Jawaban Ubin Kuning (C)" class="w-full text-sm bg-transparent text-white focus:outline-none">
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-xl border border-emerald-500/40">
+                            <input type="radio" name="correct-opt" value="3" class="w-4 h-4 accent-emerald-500">
+                            <span class="font-bold text-xs text-emerald-400">🟩 D.</span>
+                            <input type="text" id="new-opt-3" placeholder="Jawaban Ubin Hijau (D)" class="w-full text-sm bg-transparent text-white focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-1">
+                        <span class="text-xs text-slate-400">Pilih lingkaran radio di sebelah kiri untuk menandai ubin jawaban yang benar.</span>
+                        <button onclick="addQuestionToEditor()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition blox-btn">
+                            + Tambah Soal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-slate-300 text-sm">Daftar Soal Aktif (<span id="editor-total-q">0</span> Soal)</h3>
+                    <button onclick="clearAllEditorQuestions()" class="text-xs text-rose-400 hover:underline font-medium">Hapus Semua</button>
+                </div>
+                <div id="editor-question-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-2"></div>
+            </div>
+        </section>
+
+        <!-- 3. LAYAR ARENA GAME 3D ALA ROBLOX -->
+        <section id="screen-game" class="hidden w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-4">
+            
+            <!-- Kolom Kiri (8 Kolom): Viewport 3D Arena Lantai Runtuh & Pertanyaan -->
+            <div class="lg:col-span-8 flex flex-col gap-3">
+                
+                <!-- HUD Atas: Ronde, Room, Timer & Privasi Soal Host -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3.5 flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-bold">
+                            Ronde <span id="hud-round">1</span>/<span id="hud-max-round">5</span>
+                        </span>
+                        <span class="px-3 py-1 bg-slate-900 text-emerald-400 border border-slate-700 rounded-xl text-xs font-bold">
+                            Room: <span id="hud-room-code">BLX-842</span>
+                        </span>
+                    </div>
+
+                    <!-- Countdown Timer & Status -->
+                    <div class="flex items-center gap-2">
+                        <div id="hud-timer-box" class="px-3.5 py-1 bg-amber-500 text-slate-950 rounded-xl font-game font-bold text-sm flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-stopwatch"></i> <span id="hud-timer">15</span>d
+                       
+                    </div>
+                </div>
+
+                <!-- Kotak Soal (Hanya Pembuat Room yang boleh melihat teks soal) -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 relative">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <i class="fa-solid fa-circle-question text-emerald-400 mr-1"></i> Pertanyaan Ronde Ini
+                        </span>
+                        <button id="btn-toggle-host-view" onclick="toggleHostQuestionVisibility()" class="px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-white transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> <span id="host-view-label">Tampilan Host: Terlihat</span>
+                        </button>
+                    </div>
+
+                    <!-- Teks Soal (Khusus Pembuat Room) -->
+                    <div id="host-question-content">
+                        <p id="game-question-text" class="font-bold text-white text-base sm:text-lg mb-3">
+                            Memuat soal...
+                        </p>
+                        <div id="game-options-legend" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
+                            <!-- Legenda A, B, C, D -->
+                        </div>
+                    </div>
+
+                    <!-- Tampilan Terkunci untuk Peserta Undangan (Bukan Pembuat Room) -->
+                    <div id="guest-question-locked" class="hidden py-3 text-center">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs font-bold mb-1.5">
+                            <i class="fa-solid fa-lock"></i> Soal Hanya Dilihat Oleh Pembuat Room (Host)
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            Dengarkan pertanyaan dari Pembuat Room, lalu pilih ubin warna <strong>🟥 A</strong>, <strong>🟦 B</strong>, <strong>🟨 C</strong>, atau <strong>🟩 D</strong> untuk avatar Anda!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CANVAS 3D ARENA ROBLOX -->
+                <div class="relative w-full h-[340px] sm:h-[400px] bg-slate-950 rounded-3xl border-2 border-slate-700 shadow-2xl overflow-hidden">
+                    <div id="three-canvas-container" class="w-full h-full"></div>
+                    
+                    <!-- Petunjuk Kontrol Kamera 3D -->
+                    <div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-slate-300 px-3 py-1.5 rounded-xl text-[11px] pointer-events-none border border-white/10">
+                        <i class="fa-solid fa-rotate mr-1 text-emerald-400"></i> Geser layar untuk memutar kamera 3D • Klik pemain di kanan untuk memindahkannya ke ubin
+                    </div>
+
+                    <!-- Banner Pengumuman Hasil Ronde di Atas Canvas -->
+                    <div id="round-result-banner" class="hidden absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-2xl font-game font-bold text-sm sm:text-base shadow-xl border border-white/20 text-center whitespace-nowrap z-10">
+                        Ubin B Benar!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan (4 Kolom): Kontrol Pergerakan Avatar (Hingga 20 Pemain) -->
+            <div class="lg:col-span-4 bg-slate-800/95 border border-slate-700 rounded-3xl p-4 sm:p-5 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-game font-bold text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-person-running text-emerald-400"></i> Kontrol Avatar Pemain
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400" id="active-players-count">6 Pemain</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">
+                        Pilih pemain lalu klik ubin <strong>A / B / C / D</strong> agar avatarmu melompat ke platform tersebut sebelum waktu habis!
+                    </p>
+
+                    <!-- Daftar Pemain & Tombol Lompat ke Ubin A/B/C/D -->
+                    <div id="players-control-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                        <!-- Item kontrol per pemain di-render via JS -->
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi Cepat untuk Semua Pemain yang Belum Memilih -->
+                <div class="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Simulasi gerak otomatis:</span>
+                    <button onclick="randomizeUnmovedPlayers()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-300 font-semibold rounded-xl transition">
+                        <i class="fa-solid fa-shuffle mr-1"></i> Acak Posisi Kosong
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. LAYAR PEMENANG AKHIR (PODIUM ROBLOX) -->
+        <section id="screen-winner" class="hidden w-full max-w-3xl bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 p-6 sm:p-8 text-center relative overflow-hidden">
+            <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-yellow-400 to-amber-500 rounded-2xl flex items-center justify-center text-4xl shadow-lg shadow-amber-500/30 mb-4 animate-bounce text-slate-950">
+                👑
+            </div>
+            
+            <span class="px-4 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold uppercase tracking-widest">
+                Permainan Selesai!
+            </span>
+            
+            <h2 id="winner-title" class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-1 font-game">
+                Juara 1: Andi!
+            </h2>
+            <p class="text-slate-400 text-sm mb-6">
+                Berikut adalah klasemen akhir seluruh pemain di arena EduBlox 3D:
+            </p>
+
+            <!-- Papan Peringkat -->
+            <div id="leaderboard-list" class="space-y-2.5 max-w-xl mx-auto mb-7 text-left max-h-72 overflow-y-auto pr-1">
+                <!-- Peringkat di-render via JS -->
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="startGame()" class="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-game font-bold rounded-2xl shadow-lg transition flex items-center justify-center gap-2 blox-btn">
+                    <i class="fa-solid fa-rotate-right"></i> Main Ronde Baru
+                </button>
+                <button onclick="exitToMenu()" class="px-6 py-3.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-2xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Kembali ke Lobi
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL NOTIFIKASI KUSTOM ==================== -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+            <div id="modal-icon" class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mx-auto mb-3">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3 id="modal-title" class="text-lg font-bold text-white mb-1 font-game">Informasi</h3>
+            <p id="modal-message" class="text-sm text-slate-300 mb-5">Pesan notifikasi.</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition blox-btn">
+                Mengerti
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT: LOGIKA GAME & THREE.JS 3D ==================== -->
+    <script>
+        // --- 1. BANK SOAL & MATERI PEMBELAJARAN ---
+        const presetBank = {
+            umum: {
+                title: "Pengetahuan Umum",
+                questions: [
+                    { q: "Planet terbesar di tata surya kita adalah...", options: ["Bumi", "Mars", "Jupiter", "Saturnus"], answer: 2 },
+                    { q: "Ibukota negara Jepang adalah...", options: ["Seoul", "Tokyo", "Beijing", "Bangkok"], answer: 1 },
+                    { q: "Gunung tertinggi di dunia adalah...", options: ["Everest", "Kilimanjaro", "Fuji", "Jayawijaya"], answer: 0 },
+                    { q: "Penemu bola lampu pijar adalah...", options: ["Nikola Tesla", "Einstein", "Thomas Edison", "Graham Bell"], answer: 2 },
+                    { q: "Benua terluas di dunia adalah...", options: ["Afrika", "Amerika", "Eropa", "Asia"], answer: 3 },
+                    { q: "Hari Kemerdekaan Indonesia diperingati setiap tanggal...", options: ["17 Agustus", "28 Oktober", "10 November", "1 Juni"], answer: 0 }
+                ]
+            },
+            matematika: {
+                title: "Matematika Dasar",
+                questions: [
+                    { q: "Berapakah hasil dari 15 × 4 ?", options: ["45", "50", "60", "75"], answer: 2 },
+                    { q: "Akar kuadrat dari 144 adalah...", options: ["11", "12", "13", "14"], answer: 1 },
+                    { q: "Jumlah sudut dalam sebuah segitiga adalah...", options: ["90°", "180°", "270°", "360°"], answer: 1 },
+                    { q: "Nilai dari 3³ (3 pangkat 3) adalah...", options: ["9", "18", "27", "81"], answer: 2 },
+                    { q: "Jika 2x + 5 = 15, berapakah nilai x?", options: ["5", "10", "7.5", "20"], answer: 0 }
+                ]
+            },
+            ipa: {
+                title: "Ilmu Pengetahuan Alam (IPA)",
+                questions: [
+                    { q: "Proses tumbuhan membuat makanan dengan bantuan cahaya matahari disebut...", options: ["Respirasi", "Fotosintesis", "Adaptasi", "Evaporasi"], answer: 1 },
+                    { q: "Perubahan wujud dari gas menjadi cair disebut...", options: ["Menguap", "Mencair", "Mengembun", "Menyublim"], answer: 2 },
+                    { q: "Simbol kimia untuk unsur Air adalah...", options: ["CO2", "O2", "H2O", "NaCl"], answer: 2 },
+                    { q: "Organ pernapasan utama pada ikan adalah...", options: ["Paru-paru", "Trakea", "Kulit", "Insang"], answer: 3 },
+                    { q: "Gaya yang menyebabkan buah jatuh ke tanah adalah...", options: ["Magnet", "Gravitasi", "Gesek", "Pegas"], answer: 1 }
+                ]
+            },
+            inggris: {
+                title: "Bahasa Inggris",
+                questions: [
+                    { q: "Arti kata 'Library' dalam Bahasa Indonesia adalah...", options: ["Toko Buku", "Perpustakaan", "Laboratorium", "Kantin"], answer: 1 },
+                    { q: "Lawan kata (antonym) dari 'Expensive' adalah...", options: ["Cheap", "Big", "Fast", "Heavy"], answer: 0 },
+                    { q: "She ___ to school every morning.", options: ["go", "goes", "going", "gone"], answer: 1 },
+                    { q: "Past tense (Verb 2) dari kata 'Eat' adalah...", options: ["Eated", "Eaten", "Ate", "Eating"], answer: 2 }
+                ]
+            }
+        };
+
+        // Warna Avatar Roblox (Baju & Kepala) untuk hingga 20 pemain
+        const avatarColors = [
+            0x3b82f6, 0xef4444, 0x10b981, 0xf59e0b, 0x8b5cf6,
+            0xec4899, 0x06b6d4, 0xf97316, 0x84cc16, 0x6366f1,
+            0x14b8a6, 0xe11d48, 0xd946ef, 0x0ea5e9, 0xeab308,
+            0x22c55e, 0xa855f7, 0xf43f5e, 0x2dd4bf, 0xfb923c
+        ];
+
+        // --- 2. STATE APLIKASI & ROOM ---
+        let currentSubjectTitle = presetBank.umum.title;
+        let activeQuestions = [...presetBank.umum.questions];
+        let editorQuestions = [...presetBank.umum.questions];
+        let soundEnabled = true;
+
+        let roomCode = "BLX-" + Math.floor(100 + Math.random() * 900);
+        let isRoomCreator = true; // Hanya pembuat room yang bisa lihat/ubah soal
+        let hostCanSeeQuestion = true;
+
+        // Default 6 pemain individu (bisa ditambah hingga 20 pemain)
+        let setupPlayers = [
+            { name: "Andi" },
+            { name: "Budi" },
+            { name: "Citra" },
+            { name: "Dina" },
+            { name: "Eko" },
+            { name: "Fani" }
+        ];
+
+        let gameState = {
+            players: [],
+            round: 1,
+            maxRounds: 5,
+            timer: 15,
+            timerInterval: null,
+            questionQueue: [],
+            currentQIndex: 0,
+            isResolving: false
+        };
+
+        // --- 3. AUDIO EFEK ---
+        let audioCtx = null;
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(320, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+                    osc.start(now);
+                    osc.stop(now + 0.14);
+                } else if (type === 'fall') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(260, now);
+                    osc.frequency.linearRampToValueAtTime(80, now + 0.45);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.48);
+                    osc.start(now);
+                    osc.stop(now + 0.48);
+                } else if (type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.12);
+                    osc.frequency.setValueAtTime(783.99, now + 0.24);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.36);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.65);
+                    osc.start(now);
+                    osc.stop(now + 0.65);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerHTML = soundEnabled
+                ? '<i class="fa-solid fa-volume-high"></i>'
+                : '<i class="fa-solid fa-volume-xmark text-rose-400"></i>';
+        }
+
+        // --- 4. NAVIGASI LAYAR & MODAL ---
+        function showScreen(name) {
+            ['menu', 'editor', 'game', 'winner'].forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
+            });
+            document.getElementById(`screen-${name}`).classList.remove('hidden');
+            document.getElementById('btn-home').classList.toggle('hidden', name === 'menu');
+        }
+
+        function exitToMenu() {
+            clearInterval(gameState.timerInterval);
+            showScreen('menu');
+        }
+
+        function showModal(title, message, isWarning = true) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            const icon = document.getElementById('modal-icon');
+            icon.className = isWarning
+                ? "w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mx-auto mb-3"
+                : "w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mx-auto mb-3";
+            icon.innerHTML = isWarning ? '<i class="fa-solid fa-circle-exclamation"></i>' : '<i class="fa-solid fa-circle-check"></i>';
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // --- 5. SISTEM ROOM, KODE UNDANGAN & PRIVASI SOAL HOST ---
+        function switchRoleTab(role) {
+            const tabHost = document.getElementById('tab-host');
+            const tabJoin = document.getElementById('tab-join');
+            const panelHost = document.getElementById('panel-role-host');
+            const panelJoin = document.getElementById('panel-role-join');
+
+            if (role === 'host') {
+                isRoomCreator = true;
+                hostCanSeeQuestion = true;
+                tabHost.className = "py-2.5 px-4 rounded-xl font-bold text-sm bg-emerald-500 text-slate-950 shadow transition flex items-center justify-center gap-2";
+                tabJoin.className = "py-2.5 px-4 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition flex items-center justify-center gap-2";
+                panelHost.classList.remove('hidden');
+                panelJoin.classList.add('hidden');
+            } else {
+                isRoomCreator = false;
+                hostCanSeeQuestion = false;
+                tabJoin.className = "py-2.5 px-4 rounded-xl font-bold text-sm bg-blue-500 text-white shadow transition flex items-center justify-center gap-2";
+                tabHost.className = "py-2.5 px-4 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition flex items-center justify-center gap-2";
+                panelJoin.classList.remove('hidden');
+                panelHost.classList.add('hidden');
+            }
+        }
+
+        function regenerateRoomCode() {
+            roomCode = "BLX-" + Math.floor(100 + Math.random() * 900);
+            document.getElementById('host-room-code').innerText = roomCode;
+        }
+
+        function copyRoomCode() {
+            const temp = document.createElement('input');
+            temp.value = roomCode;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showModal("Kode Room Disalin", `Kode undangan "${roomCode}" berhasil disalin! Bagikan kode ini ke pemain lain (maksimal 20 orang).`, false);
+        }
+
+        function joinRoomWithCode() {
+            const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+            const nickname = document.getElementById('join-name-input').value.trim();
+
+            if (!code) {
+                showModal("Kode Undangan Diperlukan", "Anda harus memasukkan kode undangan dari Pembuat Room untuk masuk ke dalam game.", true);
+                return;
+            }
+            if (code !== roomCode) {
+                showModal("Kode Tidak Valid", `Kode "${code}" tidak cocok dengan room aktif (${roomCode}). Minta kode undangan yang benar dari Pembuat Room.`, true);
+                return;
+            }
+            if (!nickname) {
+                showModal("Nickname Kosong", "Masukkan nickname avatar Anda terlebih dahulu.", true);
+                return;
+            }
+            if (setupPlayers.length >= 20) {
+                showModal("Server Penuh", "Kapasitas maksimal 20 pemain dalam satu room sudah penuh.", true);
+                return;
+            }
+
+            if (!setupPlayers.some(p => p.name.toLowerCase() === nickname.toLowerCase())) {
+                setupPlayers.push({ name: nickname });
+                renderSetupPlayers();
+            }
+
+            isRoomCreator = false;
+            hostCanSeeQuestion = false;
+            startGame();
+            showModal("Masuk ke Arena 3D!", `Selamat bermain ${nickname}! Soal permainan dikunci dan hanya dapat dilihat oleh Pembuat Room (Host).`, false);
+        }
+
+        function toggleHostQuestionVisibility() {
+            if (!isRoomCreator) {
+                showModal("Akses Ditolak", "Hanya Pembuat Room (Host) yang diizinkan melihat soal!", true);
+                return;
+            }
+            hostCanSeeQuestion = !hostCanSeeQuestion;
+            applyQuestionPrivacyUI();
+        }
+
+        function applyQuestionPrivacyUI() {
+            const hostContent = document.getElementById('host-question-content');
+            const guestLocked = document.getElementById('guest-question-locked');
+            const toggleBtn = document.getElementById('btn-toggle-host-view');
+
+            if (!isRoomCreator) {
+                hostContent.classList.add('hidden');
+                guestLocked.classList.remove('hidden');
+                toggleBtn.className = "px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-not-allowed";
+                toggleBtn.innerHTML = `<i class="fa-solid fa-lock"></i> <span>Terkunci (Khusus Host)</span>`;
+            } else {
+                if (hostCanSeeQuestion) {
+                    hostContent.classList.remove('hidden');
+                    guestLocked.classList.add('hidden');
+                    toggleBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5";
+                    toggleBtn.innerHTML = `<i class="fa-solid fa-eye"></i> <span>Mode Host: Soal Terlihat</span>`;
+                } else {
+                    hostContent.classList.add('hidden');
+                    guestLocked.classList.remove('hidden');
+                    toggleBtn.className = "px-2.5 py-1 rounded-lg bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5";
+                    toggleBtn.innerHTML = `<i class="fa-solid fa-eye-slash"></i> <span>Tampilkan Soal (Host)</span>`;
+                }
+            }
+        }
+
+        // --- 6. MANAJEMEN PEMAIN LOBI (MAKSIMAL 20 PEMAIN) ---
+        function renderSetupPlayers() {
+            const grid = document.getElementById('players-setup-grid');
+            document.getElementById('player-count-badge').innerText = setupPlayers.length;
+            grid.innerHTML = '';
+
+            setupPlayers.forEach((p, idx) => {
+                const hexColor = '#' + avatarColors[idx % avatarColors.length].toString(16).padStart(6, '0');
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-2 bg-slate-900 border border-slate-700 p-2 rounded-xl";
+                div.innerHTML = `
+                    <span class="w-6 h-6 rounded-md shrink-0 shadow-inner border border-white/20" style="background-color: ${hexColor}"></span>
+                    <input type="text" value="${p.name}" maxlength="14" onchange="updatePlayerName(${idx}, this.value)"
+                        class="w-full bg-transparent text-xs font-semibold text-white focus:outline-none">
+                    ${setupPlayers.length > 2 ? `
+                        <button onclick="removePlayerSlot(${idx})" class="text-slate-500 hover:text-rose-400 text-xs px-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    ` : ''}
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function addPlayerSlot() {
+            if (setupPlayers.length >= 20) {
+                showModal("Batas Maksimal 20 Pemain", "Server room ini sudah mencapai kapasitas maksimal 20 pemain individu.", true);
+                return;
+            }
+            const names = ["Andi", "Budi", "Citra", "Dina", "Eko", "Fani", "Gilang", "Hana", "Indra", "Joko", "Kiki", "Lina", "Mira", "Nando", "Oki", "Putri", "Rian", "Sari", "Tono", "Wulan"];
+            setupPlayers.push({ name: names[setupPlayers.length] || `Bloxer_${setupPlayers.length + 1}` });
+            renderSetupPlayers();
+        }
+
+        function removePlayerSlot(idx) {
+            if (setupPlayers.length <= 2) return;
+            setupPlayers.splice(idx, 1);
+            renderSetupPlayers();
+        }
+
+        function updatePlayerName(idx, val) {
+            setupPlayers[idx].name = val.trim() || `Bloxer_${idx + 1}`;
+        }
+
+        // --- 7. EDITOR MATERI & SOAL (KHUSUS PEMBUAT ROOM) ---
+        function loadPresetSubject() {
+            if (!isRoomCreator) return;
+            const val = document.getElementById('select-preset').value;
+            if (val !== 'custom' && presetBank[val]) {
+                currentSubjectTitle = presetBank[val].title;
+                activeQuestions = JSON.parse(JSON.stringify(presetBank[val].questions));
+                updateSubjectUI();
+            }
+        }
+
+        function updateSubjectUI() {
+            document.getElementById('header-subject-badge').innerText = `Materi: ${currentSubjectTitle}`;
+            document.getElementById('question-count-label').innerText = `${activeQuestions.length} Soal Siap`;
+        }
+
+        function openEditor() {
+            if (!isRoomCreator) {
+                showModal("Akses Ditolak", "Hanya Pembuat Room (Host) yang boleh melihat dan mengedit soal!", true);
+                return;
+            }
+            document.getElementById('editor-subject-title').value = currentSubjectTitle;
+            editorQuestions = JSON.parse(JSON.stringify(activeQuestions));
+            renderEditorList();
+            showScreen('editor');
+        }
+
+        function renderEditorList() {
+            const list = document.getElementById('editor-question-list');
+            document.getElementById('editor-total-q').innerText = editorQuestions.length;
+            list.innerHTML = '';
+
+            if (editorQuestions.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm bg-slate-900 rounded-xl border border-dashed border-slate-700">Belum ada soal. Tambahkan soal baru di atas!</div>`;
+                return;
+            }
+
+            const badges = ['🟥 A', '🟦 B', '🟨 C', '🟩 D'];
+            editorQuestions.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = "p-3.5 bg-slate-900 border border-slate-700 rounded-xl flex justify-between items-start gap-3";
+                const optsHtml = item.options.map((opt, i) => `
+                    <span class="inline-block text-xs px-2 py-0.5 rounded ${i === item.answer ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40' : 'bg-slate-800 text-slate-400'}">
+                        ${badges[i]}. ${opt}
+                    </span>
+                `).join(' ');
+
+                div.innerHTML = `
+                    <div class="flex-grow">
+                        <p class="font-semibold text-white text-sm mb-1.5"><span class="text-emerald-400 font-bold">${idx + 1}.</span> ${item.q}</p>
+                        <div class="flex flex-wrap gap-1.5">${optsHtml}</div>
+                    </div>
+                    <button onclick="deleteEditorQuestion(${idx})" class="text-slate-500 hover:text-rose-400 p-1.5 transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addQuestionToEditor() {
+            const qText = document.getElementById('new-q-text').value.trim();
+            const o0 = document.getElementById('new-opt-0').value.trim();
+            const o1 = document.getElementById('new-opt-1').value.trim();
+            const o2 = document.getElementById('new-opt-2').value.trim();
+            const o3 = document.getElementById('new-opt-3').value.trim();
+            const ans = parseInt(document.querySelector('input[name="correct-opt"]:checked').value);
+
+            if (!qText || !o0 || !o1 || !o2 || !o3) {
+                showModal("Data Belum Lengkap", "Isi teks soal dan seluruh pilihan ubin A, B, C, dan D.", true);
+                return;
+            }
+
+            editorQuestions.push({ q: qText, options: [o0, o1, o2, o3], answer: ans });
+            ['new-q-text', 'new-opt-0', 'new-opt-1', 'new-opt-2', 'new-opt-3'].forEach(id => document.getElementById(id).value = '');
+            renderEditorList();
+        }
+
+        function deleteEditorQuestion(idx) {
+            editorQuestions.splice(idx, 1);
+            renderEditorList();
+        }
+
+        function clearAllEditorQuestions() {
+            editorQuestions = [];
+            renderEditorList();
+        }
+
+        function saveCustomQuestions() {
+            if (editorQuestions.length < 3) {
+                showModal("Soal Terlalu Sedikit", "Minimal harus tersedia 3 soal untuk memulai permainan.", true);
+                return;
+            }
+            currentSubjectTitle = document.getElementById('editor-subject-title').value.trim() || "Materi Kustom";
+            activeQuestions = JSON.parse(JSON.stringify(editorQuestions));
+            document.getElementById('select-preset').value = 'custom';
+            updateSubjectUI();
+            showScreen('menu');
+            showModal("Materi Tersimpan", `Berhasil menyimpan ${activeQuestions.length} soal ke dalam server game!`, false);
+        }
+
+        // --- 8. ENGINE 3D ROBLOX ARENA (THREE.JS) ---
+        let scene, camera, renderer, animationId;
+        let platformMeshes = []; // 4 Platform A, B, C, D
+        let playerMeshes = [];   // Avatar 3D gaya Roblox
+        let cameraAngle = 0.65;
+        let isDraggingCamera = false;
+        let prevMouseX = 0;
+
+        // Koordinat 4 Platform Ubin Jawaban (Kiri-Atas: A, Kanan-Atas: B, Kiri-Bawah: C, Kanan-Bawah: D)
+        const tilePositions = [
+            { x: -3.2, z: -3.2, color: 0xef4444, label: 'A' }, // Merah
+            { x:  3.2, z: -3.2, color: 0x3b82f6, label: 'B' }, // Biru
+            { x: -3.2, z:  3.2, color: 0xf59e0b, label: 'C' }, // Kuning
+            { x:  3.2, z:  3.2, color: 0x10b981, label: 'D' }  // Hijau
+        ];
+
+        function initThreeScene() {
+            const container = document.getElementById('three-canvas-container');
+            container.innerHTML = '';
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x090d16);
+            scene.fog = new THREE.FogExp2(0x090d16, 0.028);
+
+            const width = container.clientWidth || 700;
+            const height = container.clientHeight || 380;
+
+            camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 100);
+            updateCameraPosition();
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Pencahayaan Arena
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+            dirLight.position.set(10, 18, 12);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            // Lautan Lava di Bawah Arena
+            const lavaGeo = new THREE.PlaneGeometry(80, 80);
+            const lavaMat = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
+            const lava = new THREE.Mesh(lavaGeo, lavaMat);
+            lava.rotation.x = -Math.PI / 2;
+            lava.position.y = -3.5;
+            scene.add(lava);
+
+            // Jembatan Penghubung Tengah (Spawn Zone)
+            const centerGeo = new THREE.BoxGeometry(2.2, 0.6, 2.2);
+            const centerMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+            const centerPad = new THREE.Mesh(centerGeo, centerMat);
+            centerPad.position.set(0, -0.3, 0);
+            centerPad.receiveShadow = true;
+            scene.add(centerPad);
+
+            // Buat 4 Platform Ubin Raksasa (A, B, C, D)
+            platformMeshes = [];
+            tilePositions.forEach((tile, idx) => {
+                const geo = new THREE.BoxGeometry(5.2, 0.7, 5.2);
+                const mat = new THREE.MeshStandardMaterial({
+                    color: tile.color,
+                    roughness: 0.35,
+                    metalness: 0.1
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(tile.x, -0.35, tile.z);
+                mesh.receiveShadow = true;
+
+                // Buat Label Huruf A/B/C/D di permukaan ubin menggunakan CanvasTexture
+                const labelCanvas = document.createElement('canvas');
+                labelCanvas.width = 256;
+                labelCanvas.height = 256;
+                const ctx = labelCanvas.getContext('2d');
+                ctx.fillStyle = 'rgba(0,0,0,0.22)';
+                ctx.beginPath();
+                ctx.arc(128, 128, 82, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 120px Fredoka, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(tile.label, 128, 136);
+
+                const tex = new THREE.CanvasTexture(labelCanvas);
+                const decalGeo = new THREE.PlaneGeometry(3.2, 3.2);
+                const decalMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+                const decal = new THREE.Mesh(decalGeo, decalMat);
+                decal.rotation.x = -Math.PI / 2;
+                decal.position.y = 0.36;
+                mesh.add(decal);
+
+                scene.add(mesh);
+                platformMeshes.push({
+                    mesh: mesh,
+                    baseY: -0.35,
+                    targetY: -0.35,
+                    fallen: false
+                });
+            });
+
+            // Buat Avatar 3D Bergaya Roblox (Blocky Character + Name Tag)
+            playerMeshes = [];
+            gameState.players.forEach((player, idx) => {
+                const avatarGroup = createRobloxAvatar(player.name, avatarColors[idx % avatarColors.length]);
+                
+                // Posisi awal tersebar di tengah
+                const angle = (idx / gameState.players.length) * Math.PI * 2;
+                const radius = 0.5 + (idx % 3) * 0.25;
+                const startX = Math.cos(angle) * radius;
+                const startZ = Math.sin(angle) * radius;
+
+                avatarGroup.position.set(startX, 0, startZ);
+                scene.add(avatarGroup);
+
+                playerMeshes.push({
+                    group: avatarGroup,
+                    targetX: startX,
+                    targetY: 0,
+                    targetZ: startZ,
+                    bobOffset: idx * 0.7
+                });
+            });
+
+            // Kontrol Rotasi Kamera dengan Mouse & Sentuhan
+            const dom = renderer.domElement;
+            dom.addEventListener('mousedown', (e) => { isDraggingCamera = true; prevMouseX = e.clientX; });
+            window.addEventListener('mouseup', () => { isDraggingCamera = false; });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingCamera) return;
+                cameraAngle -= (e.clientX - prevMouseX) * 0.008;
+                prevMouseX = e.clientX;
+                updateCameraPosition();
+            });
+
+            dom.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDraggingCamera = true;
+                    prevMouseX = e.touches[0].clientX;
+                }
+            }, { passive: true });
+            window.addEventListener('touchend', () => { isDraggingCamera = false; });
+            window.addEventListener('touchmove', (e) => {
+                if (!isDraggingCamera || e.touches.length !== 1) return;
+                cameraAngle -= (e.touches[0].clientX - prevMouseX) * 0.01;
+                prevMouseX = e.touches[0].clientX;
+                updateCameraPosition();
+            }, { passive: true });
+
+            window.addEventListener('resize', onThreeResize);
+
+            if (animationId) cancelAnimationFrame(animationId);
+            animateThree();
+        }
+
+        function createRobloxAvatar(name, torsoColorHex) {
+            const group = new THREE.Group();
+
+            // Kaki Kiri & Kanan
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+            const legGeo = new THREE.BoxGeometry(0.24, 0.55, 0.26);
+            const leftLeg = new THREE.Mesh(legGeo, legMat);
+            leftLeg.position.set(-0.14, 0.275, 0);
+            const rightLeg = new THREE.Mesh(legGeo, legMat);
+            rightLeg.position.set(0.14, 0.275, 0);
+
+            // Badan (Torso Warna Pemain)
+            const torsoMat = new THREE.MeshStandardMaterial({ color: torsoColorHex });
+            const torsoGeo = new THREE.BoxGeometry(0.56, 0.62, 0.3);
+            const torso = new THREE.Mesh(torsoGeo, torsoMat);
+            torso.position.set(0, 0.86, 0);
+            torso.castShadow = true;
+
+            // Tangan Kiri & Kanan (Kuning Klasik Roblox)
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xfde047 });
+            const armGeo = new THREE.BoxGeometry(0.22, 0.58, 0.24);
+            const leftArm = new THREE.Mesh(armGeo, skinMat);
+            leftArm.position.set(-0.41, 0.86, 0);
+            const rightArm = new THREE.Mesh(armGeo, skinMat);
+            rightArm.position.set(0.41, 0.86, 0);
+
+            // Kepala (Blocky Head)
+            const headGeo = new THREE.BoxGeometry(0.42, 0.42, 0.42);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 1.42, 0);
+            head.castShadow = true;
+
+            // Name Tag Sprite di Atas Kepala Avatar
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+            ctx.roundRect(16, 8, 224, 48, 16);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 26px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(name, 128, 33);
+
+            const spriteTex = new THREE.CanvasTexture(canvas);
+            const spriteMat = new THREE.SpriteMaterial({ map: spriteTex });
+            const nameSprite = new THREE.Sprite(spriteMat);
+            nameSprite.position.set(0, 2.05, 0);
+            nameSprite.scale.set(1.8, 0.45, 1);
+
+            group.add(leftLeg, rightLeg, torso, leftArm, rightArm, head, nameSprite);
+            return group;
+        }
+
+        function updateCameraPosition() {
+            if (!camera) return;
+            const radius = 14.5;
+            camera.position.x = Math.sin(cameraAngle) * radius;
+            camera.position.z = Math.cos(cameraAngle) * radius;
+            camera.position.y = 11.2;
+            camera.lookAt(0, -0.5, 0);
+        }
+
+        function onThreeResize() {
+            const container = document.getElementById('three-canvas-container');
+            if (!container || !renderer || !camera) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            if (w > 0 && h > 0) {
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            }
+        }
+
+        function animateThree() {
+            animationId = requestAnimationFrame(animateThree);
+            const time = performance.now() * 0.005;
+
+            // Animasi Platform Runtuh / Kembali Naik
+            platformMeshes.forEach(p => {
+                p.mesh.position.y += (p.targetY - p.mesh.position.y) * 0.12;
+                if (p.fallen) {
+                    p.mesh.rotation.x += 0.02;
+                    p.mesh.rotation.z += 0.015;
+                } else {
+                    p.mesh.rotation.x += (0 - p.mesh.rotation.x) * 0.2;
+                    p.mesh.rotation.z += (0 - p.mesh.rotation.z) * 0.2;
+                }
+            });
+
+            // Animasi Gerakan & Lompatan Avatar Roblox
+            playerMeshes.forEach((pm, idx) => {
+                const player = gameState.players[idx];
+                pm.group.position.x += (pm.targetX - pm.group.position.x) * 0.14;
+                pm.group.position.z += (pm.targetZ - pm.group.position.z) * 0.14;
+
+                const bounce = player && !player.fallenThisRound ? Math.abs(Math.sin(time + pm.bobOffset)) * 0.12 : 0;
+                const desiredY = pm.targetY + bounce;
+                pm.group.position.y += (desiredY - pm.group.position.y) * 0.15;
+            });
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // --- 9. LOGIKA RONDE PERMAINAN ROBLOX ---
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function startGame() {
+            if (activeQuestions.length === 0) {
+                showModal("Bank Soal Kosong", "Tambahkan minimal 3 soal terlebih dahulu.", true);
+                return;
+            }
+
+            gameState.players = setupPlayers.map((p, idx) => ({
+                id: idx,
+                name: p.name,
+                colorHex: '#' + avatarColors[idx % avatarColors.length].toString(16).padStart(6, '0'),
+                selectedTile: null, // null = masih di tengah, 0..3 = Ubin A..D
+                score: 0,
+                fallenThisRound: false
+            }));
+
+            gameState.round = 1;
+            gameState.maxRounds = Math.min(activeQuestions.length, 6);
+            gameState.questionQueue = shuffleArray(activeQuestions);
+            gameState.currentQIndex = 0;
+            gameState.isResolving = false;
+
+            document.getElementById('hud-room-code').innerText = roomCode;
+            document.getElementById('hud-max-round').innerText = gameState.maxRounds;
+            document.getElementById('active-players-count').innerText = `${gameState.players.length} Pemain`;
+
+            applyQuestionPrivacyUI();
+            showScreen('game');
+            initThreeScene();
+            startRound();
+        }
+
+        function startRound() {
+            clearInterval(gameState.timerInterval);
+            gameState.isResolving = false;
+            gameState.timer = 15;
+
+            document.getElementById('hud-round').innerText = gameState.round;
+            document.getElementById('hud-timer').innerText = gameState.timer;
+            document.getElementById('round-result-banner').classList.add('hidden');
+            document.getElementById('btn-force-resolve').disabled = false;
+
+            // Kembalikan semua platform ke posisi semula
+            platformMeshes.forEach(p => {
+                p.fallen = false;
+                p.targetY = p.baseY;
+            });
+
+            // Kembalikan semua avatar ke zona tengah
+            gameState.players.forEach((p, idx) => {
+                p.selectedTile = null;
+                p.fallenThisRound = false;
+                const angle = (idx / gameState.players.length) * Math.PI * 2;
+                const radius = 0.4 + (idx % 3) * 0.25;
+                if (playerMeshes[idx]) {
+                    playerMeshes[idx].targetX = Math.cos(angle) * radius;
+                    playerMeshes[idx].targetZ = Math.sin(angle) * radius;
+                    playerMeshes[idx].targetY = 0;
+                }
+            });
+
+            // Tampilkan soal di panel Host
+            const currentQ = gameState.questionQueue[gameState.currentQIndex];
+            document.getElementById('game-question-text').innerText = currentQ.q;
+
+            const tileStyles = [
+                "bg-rose-500/20 border-rose-500/40 text-rose-200",
+                "bg-blue-500/20 border-blue-500/40 text-blue-200",
+                "bg-amber-500/20 border-amber-500/40 text-amber-200",
+                "bg-emerald-500/20 border-emerald-500/40 text-emerald-200"
+            ];
+            const tileNames = ["🟥 A", "🟦 B", "🟨 C", "🟩 D"];
+            document.getElementById('game-options-legend').innerHTML = currentQ.options.map((opt, i) => `
+                <div class="px-2.5 py-1.5 rounded-xl border ${tileStyles[i]} truncate">
+                    <span class="font-extrabold mr-1">${tileNames[i]}:</span> ${opt}
+                </div>
+            `).join('');
+
+            renderPlayersControlList();
+
+            // Mulai hitung mundur
+            gameState.timerInterval = setInterval(() => {
+                gameState.timer--;
+                document.getElementById('hud-timer').innerText = gameState.timer;
+                if (gameState.timer <= 0) {
+                    resolveRoundNow();
+                }
+            }, 1000);
+        }
+
+        function renderPlayersControlList() {
+            const list = document.getElementById('players-control-list');
+            list.innerHTML = '';
+
+            const tileBtnColors = [
+                { label: 'A', active: 'bg-rose-500 text-white ring-2 ring-white', idle: 'bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white' },
+                { label: 'B', active: 'bg-blue-500 text-white ring-2 ring-white', idle: 'bg-blue-500/20 text-blue-300 hover:bg-blue-500 hover:text-white' },
+                { label: 'C', active: 'bg-amber-400 text-slate-950 ring-2 ring-white', idle: 'bg-amber-500/20 text-amber-300 hover:bg-amber-400 hover:text-slate-950' },
+                { label: 'D', active: 'bg-emerald-500 text-slate-950 ring-2 ring-white', idle: 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950' }
+            ];
+
+            gameState.players.forEach((player, pIdx) => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900/90 border border-slate-700/80 p-2.5 rounded-2xl flex items-center justify-between gap-2";
+
+                const buttonsHtml = tileBtnColors.map((btn, tIdx) => {
+                    const isSelected = player.selectedTile === tIdx;
+                    return `
+                        <button onclick="movePlayerToTile(${pIdx}, ${tIdx})" ${gameState.isResolving ? 'disabled' : ''}
+                            class="w-7 h-7 rounded-lg font-game font-bold text-xs transition ${isSelected ? btn.active : btn.idle}">
+                            ${btn.label}
+                        </button>
+                    `;
+                }).join('');
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-4 h-4 rounded shrink-0 border border-white/20" style="background-color: ${player.colorHex}"></span>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-white truncate">${player.name}</p>
+                            <p class="text-[10px] text-emerald-400 font-semibold">${player.score} Poin</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        ${buttonsHtml}
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        // Pindahkan Avatar 3D ke Ubin A, B, C, atau D
+        function movePlayerToTile(playerIdx, tileIdx) {
+            if (gameState.isResolving) return;
+            const player = gameState.players[playerIdx];
+            player.selectedTile = tileIdx;
+            playSound('jump');
+
+            // Sebar posisi avatar di atas ubin agar 20 pemain tidak bertumpuk di 1 titik
+            const tile = tilePositions[tileIdx];
+            const sameTileCount = gameState.players.filter((p, i) => i < playerIdx && p.selectedTile === tileIdx).length;
+            const col = (sameTileCount % 4) - 1.5;
+            const row = Math.floor(sameTileCount / 4) - 1.5;
+
+            if (playerMeshes[playerIdx]) {
+                playerMeshes[playerIdx].targetX = tile.x + col * 0.95;
+                playerMeshes[playerIdx].targetZ = tile.z + row * 0.95;
+                playerMeshes[playerIdx].targetY = 0.35; // Melompat kecil saat mendarat
+                setTimeout(() => {
+                    if (!player.fallenThisRound && playerMeshes[playerIdx]) {
+                        playerMeshes[playerIdx].targetY = 0;
+                    }
+                }, 150);
+            }
+
+            renderPlayersControlList();
+        }
+
+        function randomizeUnmovedPlayers() {
+            if (gameState.isResolving) return;
+            gameState.players.forEach((p, idx) => {
+                if (p.selectedTile === null) {
+                    const randTile = Math.floor(Math.random() * 4);
+                    movePlayerToTile(idx, randTile);
+                }
+            });
+        }
+
+        // Eksekusi Runtuhnya Lantai Salah!
+        function resolveRoundNow() {
+            if (gameState.isResolving) return;
+            gameState.isResolving = true;
+            clearInterval(gameState.timerInterval);
+            document.getElementById('btn-force-resolve').disabled = true;
+
+            const currentQ = gameState.questionQueue[gameState.currentQIndex];
+            const correctIdx = currentQ.answer;
+            const tileNames = ["Ubin Merah (A)", "Ubin Biru (B)", "Ubin Kuning (C)", "Ubin Hijau (D)"];
+
+            playSound('fall');
+
+            // Runtuhkan 3 ubin yang salah ke dalam lava!
+            platformMeshes.forEach((plat, idx) => {
+                if (idx !== correctIdx) {
+                    plat.fallen = true;
+                    plat.targetY = -6.5;
+                }
+            });
+
+            // Evaluasi setiap pemain: yang berdiri di ubin benar dapat poin, sisanya jatuh!
+            let survivors = 0;
+            gameState.players.forEach((player, idx) => {
+                if (player.selectedTile === correctIdx) {
+                    player.score += 100;
+                    survivors++;
+                } else {
+                    player.fallenThisRound = true;
+                    if (playerMeshes[idx]) {
+                        playerMeshes[idx].targetY = -6.0;
+                    }
+                }
+            });
+
+            renderPlayersControlList();
+
+            const banner = document.getElementById('round-result-banner');
+            banner.className = "absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-2xl font-game font-bold text-sm sm:text-base shadow-xl border border-white/20 text-center whitespace-nowrap z-10 bg-emerald-500 text-slate-950";
+            banner.innerText = `✅ ${tileNames[correctIdx]} Benar! (${survivors} Pemain Selamat)`;
+            banner.classList.remove('hidden');
+
+            // Lanjut ke ronde berikutnya atau tampilkan pemenang akhir
+            setTimeout(() => {
+                if (gameState.round >= gameState.maxRounds) {
+                    declareFinalWinner();
+                } else {
+                    gameState.round++;
+                    gameState.currentQIndex++;
+                    startRound();
+                }
+            }, 3000);
+        }
+
+        // --- 10. PENGUMUMAN PEMENANG AKHIR ---
+        function declareFinalWinner() {
+            playSound('win');
+            const sorted = [...gameState.players].sort((a, b) => b.score - a.score);
+            const champion = sorted[0];
+
+            document.getElementById('winner-title').innerText = `Juara 1: ${champion.name}!`;
+            const listEl = document.getElementById('leaderboard-list');
+            listEl.innerHTML = '';
+
+            sorted.forEach((p, idx) => {
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+                const isFirst = idx === 0;
+                const row = document.createElement('div');
+                row.className = `flex items-center justify-between p-3.5 rounded-2xl border ${isFirst ? 'bg-amber-500/20 border-amber-400' : 'bg-slate-900 border-slate-700'}`;
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl font-bold w-8 text-center">${medal}</span>
+                        <span class="w-7 h-7 rounded-lg border border-white/20" style="background-color: ${p.colorHex}"></span>
+                        <div>
+                            <p class="font-bold text-white text-sm sm:text-base">${p.name}</p>
+                            <p class="text-xs text-slate-400">${p.score / 100} Ronde Selamat</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-game font-bold text-lg ${isFirst ? 'text-amber-300' : 'text-emerald-400'}">${p.score}</span>
+                        <span class="text-xs text-slate-400 block">Poin</span>
+                    </div>
+                `;
+                listEl.appendChild(row);
+            });
+
+            showScreen('winner');
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 130, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        // Inisialisasi Awal
+        document.getElementById('host-room-code').innerText = roomCode;
+        renderSetupPlayers();
+        updateSubjectUI();
+    </script>
+</body>
+</html>
